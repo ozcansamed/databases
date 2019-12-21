@@ -39,3 +39,54 @@ const seedDatabase = async () => {
 };
 
 seedDatabase();
+
+// ------------   WITH EXPRESS --- EXERCISE-2   ----------------
+
+const express = require('express');
+const mysql = require('mysql');
+const {
+  departments
+} = require('./exercises-data.js');
+
+const app = express();
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'hyfuser',
+  password: 'hyfpassword',
+  database: 'new_company_2'
+});
+
+db.connect(err => {
+  if (err) {
+    throw err;
+  }
+  console.log('mysql connected...');
+});
+
+app.get('/createDepartmentTable', (req, res) => {
+  let sql = `CREATE TABLE IF NOT EXISTS departments (
+    dept_no INT PRIMARY KEY, 
+    title VARCHAR(100), 
+    description VARCHAR(200), 
+    address VARCHAR(200))`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.table(result);
+    res.send('Departments table created...');
+  });
+});
+
+departments.forEach(department => {
+  let sql = 'INSERT INTO departments SET ?';
+  db.query(sql, department, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.table(result);
+  });
+});
+
+app.listen('3000', () => {
+  console.log('Server started on port 3000');
+});
