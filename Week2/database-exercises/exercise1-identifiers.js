@@ -130,3 +130,52 @@ app.get('/addForeignKey', (req, res) => {
 app.listen('3000', () => {
   console.log('Server started on port 3000');
 });
+
+// ------------      WITH PROMISE --- EXERCISE-1      ----------------
+
+const mysql = require('mysql');
+const {
+  employees
+} = require('./exercises-data.js');
+const util = require('util');
+
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'hyfuser',
+  password: 'hyfpassword'
+});
+
+const connect = util.promisify(connection.connect.bind(connection));
+const execQuery = util.promisify(connection.query.bind(connection));
+
+connect()
+  .then(() => {
+    return execQuery('CREATE DATABASE IF NOT EXISTS new_company_2');
+  })
+  .then(() => {
+    return execQuery('USE new_company_2');
+  })
+  .then(() => {
+    return execQuery(`CREATE TABLE IF NOT EXISTS employees (
+      employee_no INT PRIMARY KEY AUTO_INCREMENT, 
+      full_name VARCHAR(100), 
+      salary INT, 
+      address VARCHAR(200), 
+      manager INT, 
+      department_no INT, 
+      FOREIGN KEY(manager) REFERENCES employees(employee_no))`);
+  })
+  .then(() => {
+    return employees.forEach(employee => {
+      execQuery(`INSERT INTO employees SET ?`, employee);
+    });
+  })
+  .then(() => {
+    return execQuery('ALTER TABLE employees ADD Constraint FOREIGN KEY(department_no) REFERENCES departments(dept_no)');
+  })
+  .catch(err => {
+    console.error('error: ', err);
+  })
+  .finally(() => {
+    connection.end();
+  });

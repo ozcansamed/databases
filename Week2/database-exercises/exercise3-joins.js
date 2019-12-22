@@ -104,3 +104,52 @@ app.get('/allEmployeesWithWorkingDepartmentTitle', (req, res) => {
 app.listen('3000', () => {
   console.log('Server started on port 3000');
 });
+
+// ------------      WITH PROMISE --- EXERCISE-3      ----------------
+
+const mysql = require('mysql');
+const util = require('util');
+const {
+  employees,
+  departments
+} = require('./exercises-data.js');
+
+
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'hyfuser',
+  password: 'hyfpassword',
+  database: 'new_company_2'
+});
+
+const connect = util.promisify(connection.connect.bind(connection));
+const execQuery = util.promisify(connection.query.bind(connection));
+
+connect()
+  .then(() => {
+    // Q-1 => Write a query that retrieves all employees and their corresponding manager 's full name
+
+    const allEmployeesWithManagerName = execQuery(
+      `SELECT emp1.*, 
+      emp2.manager AS "manager's_id", emp2.full_name AS "manager's full_name" 
+      FROM employees emp1, employees emp2 
+      WHERE emp1.manager = emp2.employee_no;`,
+    );
+    return allEmployeesWithManagerName;
+  })
+
+  // Q-2 => Write a query that retrieves all employees and their working department title.
+  // If no employee worked in a specific department, return the department too
+  .then((result1) => {
+    console.table(result1);
+    const allEmployeesWithWorkingDepartmentTitle = execQuery(`SELECT employees.*, departments.dept_no, departments.title FROM departments 
+    LEFT JOIN employees ON employees.department_no = departments.dept_no;`);
+    return allEmployeesWithWorkingDepartmentTitle;
+  })
+  .then((result2) => console.table(result2))
+  .catch(err => {
+    console.error('error: ', err);
+  })
+  .finally(() => {
+    connection.end();
+  });
