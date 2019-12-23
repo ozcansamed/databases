@@ -31,6 +31,8 @@ const seedDatabase = async () => {
       await execQuery(`INSERT INTO departments SET ?`, department);
     });
 
+    await execQuery('ALTER TABLE employees ADD Constraint FOREIGN KEY(department_no) REFERENCES departments(dept_no)');
+
   } catch (err) {
     console.error(err);
   } finally {
@@ -41,7 +43,7 @@ const seedDatabase = async () => {
 seedDatabase();
 
 // ------------   WITH EXPRESS --- EXERCISE-2   ----------------
-
+/*
 const express = require('express');
 const mysql = require('mysql');
 const {
@@ -87,6 +89,15 @@ departments.forEach(department => {
   });
 });
 
+app.get('/addForeignKey', (req, res) => {
+  let sql = 'ALTER TABLE employees ADD Constraint FOREIGN KEY(department_no) REFERENCES departments(dept_no)';
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.table(result);
+    res.send('Foreign Key Added...');
+  });
+});
+
 app.listen('3000', () => {
   console.log('Server started on port 3000');
 });
@@ -122,9 +133,13 @@ connect()
       execQuery(`INSERT INTO departments SET ?`, department);
     });
   })
+  .then(() => {
+    return execQuery('ALTER TABLE employees ADD Constraint FOREIGN KEY(department_no) REFERENCES departments(dept_no)');
+  })
   .catch(err => {
     console.error('error: ', err);
   })
   .finally(() => {
     connection.end();
   });
+  */

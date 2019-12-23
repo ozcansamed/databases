@@ -52,7 +52,7 @@ const queryDatabase = async () => {
 queryDatabase();
 
 // ------------   WITH EXPRESS --- EXERCISE-3   ----------------
-
+/*
 const express = require('express');
 const mysql = require('mysql');
 const {
@@ -153,3 +153,4 @@ connect()
   .finally(() => {
     connection.end();
   });
+  */
